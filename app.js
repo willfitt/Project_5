@@ -4,6 +4,7 @@ const path = require('path');
 const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+let userId = 1
 
 class User {
     constructor(id, fName, lName, email, age) {
@@ -14,89 +15,48 @@ class User {
         this.age = age;
     }
 }
-class Users {
+
+class UserService {
     constructor() {
         this.userArray = [];
     }
 
     addUser(user) {
         this.userArray.push(user)
+        console.log(`new user save: ${JSON.stringify(user)}`);
+        console.log(this.userArray)
+    }
+
+    editUser(){
+
     }
 }
 
-new Users();
+let userService = new UserService();
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(express.urlencoded({ extended: false }));
 
+app.get('/', (req, res) => {
+    res.render('index', {users: userArray})
+})
+
 app.get('/createUser', (req, res) => {
     res.render('createUser')
 });
 app.get('/userList', (req, res) => {
-    res.render('changeRole')
+    res.render('userListing')
 });
 app.get('/editUser', (req, res) => {
     res.render('deleteUser')
 });
 
-//Create --new document
-app.post('/newUser', (req, res) => {
-    console.log(`POST /newUser: ${JSON.stringify(req.body)}`);
-    const newUser = new User();
-    newUser.name = req.body.name;
-    newUser.role = req.body.role;
-    newUser.save((err, data) => {
-        if (err) {
-            return console.error(err);
-        }
-        console.log(`new user save: ${data}`);
-        res.send(`done ${data}`);
-    });
-});// test this with`curl --data "name=Peter&role=Student" http://localhost:8080/newUser`
-//Read --find a document
-app.get('/user/:name', (req, res) => {
-    let userName = req.params.name;
-    console.log(`GET /user/:name: ${JSON.stringify(req.params)}`);
-    user.findOne({ name: userName }, (err, data) => {
-        if (err) return console.log(`Oops! ${err}`);
-        console.log(`data -- ${JSON.stringify(data)}`);
-        let returnMsg = `user name : ${userName} role : ${data.role}`;
-        console.log(returnMsg);
-        res.send(returnMsg);
-    });
-});
-
-//Update --find one and then update the document
-app.post('/updatedRole', (req, res) => {
-    console.log(`POST /updateUserRole: ${JSON.stringify(req.body)}`);
-    let matchedName = req.body.name;
-    let newrole = req.body.role;
-    user.findOneAndUpdate({ name: matchedName }, { role: newrole },
-        { new: true }, //return the updated version instead of the pre-updated document
-        (err, data) => {
-            if (err) return console.log(`Oops! ${err}`);
-            console.log(`data -- ${data.role}`)
-            let returnMsg = `user name : ${matchedName} New role : ${data.role}`;
-            console.log(returnMsg);
-            res.send(returnMsg);
-        });
-});// test this with: `curl --data "name=Mike&role=TA" http://localhost:8080/updateUserRole`
-
-
-//Delete --find one and then remove the document
-app.post('/removeUser', (req, res) => {
-    console.log(`POST /removeUser: ${JSON.stringify(req.body)}`);
-    let matchedName = req.body.name;
-    user.findOneAndDelete(
-        { name: matchedName },
-        (err, data) => {
-            if (err) return console.log(`Oops! ${err}`);
-            console.log(`data -- ${JSON.stringify(data)}`)
-            let returnMsg = `user name : ${matchedName}, removed data : ${data}`;
-            console.log(returnMsg);
-            res.send(returnMsg);
-        });
+//Create --new user
+app.post('/createUser', (req, res) => {
+    console.log(`POST /createUser: ${JSON.stringify(req.body)}`);
+    const newUser = new User(userId++, req.body.fName, req.body.lName, req.body.Email, req.body.Age)
+    userService.addUser(newUser)
 });
 
 app.listen(port, (err) => {
