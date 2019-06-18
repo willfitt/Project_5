@@ -39,14 +39,13 @@ app.set('view engine', 'pug');
 app.use(express.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => {
-    res.render('index', {users: userArray})
+    res.render('index')
 })
-
 app.get('/createUser', (req, res) => {
     res.render('createUser')
 });
 app.get('/userList', (req, res) => {
-    res.render('userListing')
+    res.render('userListing', {userArray: userService.userArray})
 });
 app.get('/editUser', (req, res) => {
     res.render('deleteUser')
