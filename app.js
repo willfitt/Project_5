@@ -2,9 +2,11 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const port = process.env.PORT || 3000;
+const fs = require('fs');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 let userId = 1
+let stream = fs.createWriteStream('userList.log');
 
 class User {
     constructor(id, fName, lName, email, age) {
@@ -24,7 +26,7 @@ class UserService {
     addUser(user) {
         this.userArray.push(user)
         console.log(`new user save: ${JSON.stringify(user)}`);
-        console.log(this.userArray)
+        stream.write(`added: ${JSON.stringify(user)}\n`);
     }
 
     editUser(){
@@ -39,16 +41,13 @@ app.set('view engine', 'pug');
 app.use(express.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => {
-    res.render('index')
-})
-app.get('/createUser', (req, res) => {
     res.render('createUser')
 });
 app.get('/userList', (req, res) => {
     res.render('userListing', {userArray: userService.userArray})
 });
-app.get('/editUser', (req, res) => {
-    res.render('deleteUser')
+app.get('/user/edit/:req.params.id', (req, res) => {
+    res.render('editUser', {user: userService.userArray[req.params.id]})
 });
 
 //Create --new user
@@ -56,6 +55,7 @@ app.post('/createUser', (req, res) => {
     console.log(`POST /createUser: ${JSON.stringify(req.body)}`);
     const newUser = new User(userId++, req.body.fName, req.body.lName, req.body.Email, req.body.Age)
     userService.addUser(newUser)
+    res.redirect('/userList')
 });
 
 app.listen(port, (err) => {
