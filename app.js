@@ -30,7 +30,7 @@ class UserService {
     }
 
     editUser(){
-
+        console.log('hi')
     }
 }
 
@@ -44,7 +44,8 @@ app.get('/', (req, res) => {
     res.render('createUser')
 });
 app.get('/userList', (req, res) => {
-    res.render('userListing', {userArray: userService.userArray})
+    res.render('userListing', {userArray: userService.userArray,
+                               editRedirect: userService.editUser})
 });
 app.get('/user/edit/:req.params.id', (req, res) => {
     res.render('editUser', {user: userService.userArray[req.params.id]})

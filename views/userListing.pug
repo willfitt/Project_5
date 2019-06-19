@@ -10,12 +10,13 @@ html
                 th Age
             for user in userArray    
                 tr
-                    td= user.id
+                    td(id=user.id)= user.id
                     td= user.fName
                     td= user.lName
                     td= user.email
                     td= user.age
+                    td 
+                        button
+                            a(href="/") Edit
                     td
-                        button Edit
-                    td
-                        button Delete
+                        button(onclick='editRedirect()') Delete
