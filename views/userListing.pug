@@ -17,6 +17,6 @@ html
                     td= user.age
                     td 
                         button
-                            a(href="/") Edit
+                            a( href="/") Edit
                     td
-                        button(onclick='editRedirect()') Delete
+                        input(action='/deleteUser' method='POST' type='submit') 
