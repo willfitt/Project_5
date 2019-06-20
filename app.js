@@ -1,12 +1,12 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 3000;
 const fs = require('fs');
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 let userId = 1
 let stream = fs.createWriteStream('userList.log');
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 class User {
     constructor(id, fName, lName, email, age) {
@@ -25,12 +25,25 @@ class UserService {
 
     addUser(user) {
         this.userArray.push(user)
-        console.log(`new user save: ${JSON.stringify(user)}`);
         stream.write(`added: ${JSON.stringify(user)}\n`);
     }
 
-    editUser(){
-        console.log('hi')
+    getUser(id){
+        return this.userArray.find((user) => user.id == id);
+    }
+
+    editUser(user){
+        let currentUser = this.getUser(user.id);
+        currentUser.fName = user.fName
+        currentUser.fLame = user.fLame
+        currentUser.age = user.Age
+        currentUser.email = user.Email
+    }
+    
+    deleteUser(id){
+        let currentUser = this.userArray.find((user) => user.id == id);
+        let currentUserIndex = this.userArray.findIndex((user) => user === currentUser );
+        this.userArray.splice(currentUserIndex, 1)
     }
 }
 
@@ -47,21 +60,29 @@ app.get('/userList', (req, res) => {
     res.render('userListing', {userArray: userService.userArray,
                                editRedirect: userService.editUser})
 });
-app.get('/user/edit/:req.params.id', (req, res) => {
-    res.render('editUser', {user: userService.userArray[req.params.id]})
+app.get('/user/edit/:id', (req, res) => {
+    let userToEdit = userService.getUser(req.params.id)
+    res.render('editUser', {editUser: userToEdit})
 });
 
-//Create --new user
 app.post('/createUser', (req, res) => {
-    console.log(`POST /createUser: ${JSON.stringify(req.body)}`);
     const newUser = new User(userId++, req.body.fName, req.body.lName, req.body.Email, req.body.Age)
     userService.addUser(newUser)
     res.redirect('/userList')
 });
 
-app.post('/deleteUser', (req, res) => {
-    console.log('begin deleting')
+app.post('/editUser/:id', (req, res) => {
+    let currentUser = req.body;
+    currentUser.id = req.params.id;
+    userService.editUser(currentUser)
+    res.redirect('/userList')
 });
+
+app.post('/deleteUser/:id', (req, res) => {
+    userService.deleteUser(req.params.id)
+    res.redirect('/userList')
+});
+
 
 app.listen(port, (err) => {
     if (err) console.log(err);
